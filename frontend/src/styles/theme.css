@@ -1,0 +1,27 @@
+@theme {
+  /* Backgrounds */
+  --color-background: #020617;
+  --color-surface: #0f172a;
+  --color-card: #1e293b;
+  --color-card-hover: #273449;
+
+  /* Borders */
+  --color-border: #334155;
+
+  /* Brand */
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+
+  /* Status */
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #06b6d4;
+
+  /* Text */
+  --color-text: #f8fafc;
+  --color-muted: #94a3b8;
+
+  /* Optional */
+  --radius: 12px;
+}
