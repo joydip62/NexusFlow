@@ -11,11 +11,13 @@ require("dotenv").config();
 
 const app = require("./app");
 const connectDB = require("./config/db");
+const initializeTimeSeries = require("./config/initTimeSeries");
 
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
     await connectDB();
+    await initializeTimeSeries();
 
     app.listen(PORT, () => {
         console.log(`NexusFlow server running on port ${PORT}`);
