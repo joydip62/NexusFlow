@@ -1,10 +1,13 @@
 const express = require("express");
 
 const {
-    createTelemetry, createBulkTelemetry
+    createTelemetry, getTelemetry, createBulkTelemetry
 } = require("../controllers/telemetryController");
 
 const router = express.Router();
+
+// Get telemetry
+router.get("/", getTelemetry);
 
 // Single telemetry 
 router.post("/", createTelemetry);
