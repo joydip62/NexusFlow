@@ -48,6 +48,27 @@ const createTelemetry = async (req, res) => {
         });
     }
 };
+const getTelemetry = async (req, res) => {
+    try {
+        const telemetry = await Telemetry.find()
+            .sort({ timestamp: -1 });
+
+        return res.status(200).json({
+            success: true,
+            count: telemetry.length,
+            data: telemetry
+        });
+
+    } catch (error) {
+        console.error("Failed to fetch telemetry:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to fetch telemetry",
+            error: error.message
+        });
+    }
+};
 
 const createBulkTelemetry = async (req, res) => {
     try {
@@ -118,5 +139,6 @@ const createBulkTelemetry = async (req, res) => {
 
 module.exports = {
     createTelemetry, 
+    getTelemetry,
     createBulkTelemetry
 };
