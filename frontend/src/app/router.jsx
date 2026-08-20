@@ -1,12 +1,13 @@
 import { createBrowserRouter } from "react-router-dom";
 
 import DashboardLayout from "../components/layout/DashboardLayout";
+import DashboardPage from "../pages/Dashboard/pages/DashboardPage";
+import FlowBuilderPage from "../pages/Flow-builder/pages/FlowBuilderPage";
+import TelemetryPage from "../pages/Telemetry/pages/TelemetryPage";
+import AlertsPage from "../pages/Alerts/pages/AlertsPage";
+import SettingsPage from "../pages/Settings/pages/SettingsPage";
 
-import DashboardPage from "../pages/dashboard/pages/DashboardPage";
-import FlowBuilderPage from "../pages/flow-builder/pages/FlowBuilderPage";
-import TelemetryPage from "../pages/telemetry/pages/TelemetryPage";
-import AlertsPage from "../pages/alerts/pages/AlertsPage";
-import SettingsPage from "../pages/settings/pages/SettingsPage";
+
 
 const router = createBrowserRouter([
     {
