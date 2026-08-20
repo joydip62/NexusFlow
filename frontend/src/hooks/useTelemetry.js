@@ -2,32 +2,40 @@ import { useEffect, useState } from "react";
 import { getTelemetry } from "../services/telemetryService";
 
 const useTelemetry = () => {
-    const [telemetry, setTelemetry] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
+  const [telemetry, setTelemetry] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-    useEffect(() => {
-        const fetchTelemetry = async () => {
-            try {
-                const response = await getTelemetry();
+  const fetchTelemetry = async () => {
+    setLoading(true);
 
-                setTelemetry(response.data);
-            } catch (error) {
-                console.error(error);
-                setError("Failed to fetch telemetry data.");
-            } finally {
-                setLoading(false);
-            }
-        };
+    try {
+      const response = await getTelemetry();
 
-        fetchTelemetry();
-    }, []);
+      setTelemetry(response.data || []);
+      setError("");
+    } catch (error) {
+      console.error("Failed to fetch telemetry:", error);
 
-    return {
-        telemetry,
-        loading,
-        error,
-    };
+      setError(
+        error.response?.data?.message ||
+        "Failed to fetch telemetry data."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTelemetry();
+  }, []);
+
+  return {
+    telemetry,
+    loading,
+    error,
+    refetch: fetchTelemetry,
+  };
 };
 
 export default useTelemetry;
