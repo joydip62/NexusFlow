@@ -126,6 +126,7 @@ const TelemetryPage = () => {
             toDate={toDate}
             setToDate={onToDateChange}
             onClearFilters={onClearFilters}
+
           />
           {(deviceId || fromDate || toDate) && (
             <button
@@ -147,6 +148,7 @@ const TelemetryPage = () => {
                 className="rounded-lg border border-border px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Previous
+                
               </button>
 
               <span className="px-3 text-sm text-muted">
