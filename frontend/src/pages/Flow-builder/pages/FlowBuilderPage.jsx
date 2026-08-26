@@ -56,6 +56,7 @@ const initialNodes = [
 
 const FlowBuilderPage = () => {
   const [nodes, setNodes] = useState(initialNodes);
+  const [selectedNode, setSelectedNode] = useState(null);
 
   const addNode = (type) => {
     const defaultConfig = {
@@ -122,7 +123,19 @@ const FlowBuilderPage = () => {
           <FlowCanvas
             nodes={nodes}
             setNodes={setNodes}
+            setSelectedNode={setSelectedNode}
           />
+          {selectedNode && (
+  <div className="mt-4 rounded-xl border border-border bg-surface p-4">
+    <p className="text-sm text-muted">
+      Selected Node
+    </p>
+
+    <p className="mt-1 font-semibold text-text">
+      {selectedNode.data.label}
+    </p>
+  </div>
+)}
         </div>
       </div>
     </section>
