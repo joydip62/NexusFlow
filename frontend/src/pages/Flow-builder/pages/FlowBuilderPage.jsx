@@ -58,6 +58,8 @@ const FlowBuilderPage = () => {
   const [nodes, setNodes] = useState(initialNodes);
   const [selectedNode, setSelectedNode] = useState(null);
   const [config, setConfig] = useState({});
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const addNode = (type) => {
     const defaultConfig = {
@@ -138,8 +140,58 @@ const FlowBuilderPage = () => {
   useEffect(() => {
     if (selectedNode) {
       setConfig(selectedNode.data.config);
+      setError("");
     }
   }, [selectedNode]);
+
+  const validateConfig = () => {
+    if (!selectedNode) {
+      return "Please select a node.";
+    }
+
+    if (selectedNode.type === "turbineSensor") {
+      if (!config.deviceId?.trim()) {
+        return "Device ID is required.";
+      }
+    }
+
+    if (selectedNode.type === "movingAverage") {
+      if (
+        !config.window ||
+        Number(config.window) <= 0
+      ) {
+        return "Window must be greater than 0.";
+      }
+
+      if (!config.field?.trim()) {
+        return "Field is required.";
+      }
+    }
+
+    if (selectedNode.type === "smsAlert") {
+      if (!config.phone?.trim()) {
+        return "Phone number is required.";
+      }
+    }
+
+    return "";
+  };
+
+  const handleSaveConfig = () => {
+    setError("");
+    setSuccess("");
+
+    const validationError = validateConfig();
+
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    updateNodeConfig(selectedNode.id, config);
+
+    setSuccess("Configuration saved successfully.");
+  };
 
   return (
     <section>
@@ -181,13 +233,16 @@ const FlowBuilderPage = () => {
                     <input
                       type="text"
                       value={config.deviceId || ""}
-                      onChange={(e) =>
+                      onChange={(e) => {
                         setConfig({
                           ...config,
                           deviceId: e.target.value,
-                        })
-                      }
+                        });
+                        setError("");
+                        setSuccess("");
+                      }}
                       className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-text outline-none"
+                      placeholder="Enter device ID"
                     />
                   </div>
                 )}
@@ -201,14 +256,18 @@ const FlowBuilderPage = () => {
 
                       <input
                         type="number"
+                        min="1"
                         value={config.window || ""}
-                        onChange={(e) =>
+                        onChange={(e) => {
                           setConfig({
                             ...config,
                             window: Number(e.target.value),
-                          })
-                        }
+                          });
+                          setError("");
+                          setSuccess("");
+                        }}
                         className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-text outline-none"
+                        placeholder="Enter window size"
                       />
                     </div>
 
@@ -220,13 +279,16 @@ const FlowBuilderPage = () => {
                       <input
                         type="text"
                         value={config.field || ""}
-                        onChange={(e) =>
+                        onChange={(e) => {
                           setConfig({
                             ...config,
                             field: e.target.value,
-                          })
-                        }
+                          });
+                          setError("");
+                          setSuccess("");
+                        }}
                         className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-text outline-none"
+                        placeholder="e.g. temperature"
                       />
                     </div>
                   </div>
@@ -241,25 +303,38 @@ const FlowBuilderPage = () => {
                     <input
                       type="text"
                       value={config.phone || ""}
-                      onChange={(e) =>
+                      onChange={(e) => {
                         setConfig({
                           ...config,
                           phone: e.target.value,
-                        })
-                      }
+                        });
+                        setError("");
+                        setSuccess("");
+                      }}
                       className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-text outline-none"
+                      placeholder="Enter phone number"
                     />
                   </div>
                 )}
 
+                {error && (
+                  <p className="mt-3 text-sm text-red-500">
+                    {error}
+                  </p>
+                )}
+
+                {success && (
+                  <p className="mt-3 text-sm text-green-500">
+                    {success}
+                  </p>
+                )}
+
                 <button
                   type="button"
-                  onClick={() =>
-                    updateNodeConfig(selectedNode.id, config)
-                  }
+                  onClick={handleSaveConfig}
                   className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90"
                 >
-                  Save
+                  Save Configuration
                 </button>
               </div>
             </div>
