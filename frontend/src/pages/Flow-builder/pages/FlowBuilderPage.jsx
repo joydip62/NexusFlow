@@ -12,7 +12,11 @@ const initialNodes = [
       y: 150,
     },
     data: {
-      deviceId: "TUR-001",
+      label: "Turbine Sensor",
+      category: "data-source",
+      config: {
+        deviceId: "TUR-001",
+      },
     },
   },
 
@@ -24,8 +28,12 @@ const initialNodes = [
       y: 150,
     },
     data: {
-      window: 5,
-      field: "temperature",
+      label: "Moving Average",
+      category: "math-operation",
+      config: {
+        window: 5,
+        field: "temperature",
+      },
     },
   },
 
@@ -37,7 +45,11 @@ const initialNodes = [
       y: 150,
     },
     data: {
-      phone: "+91 XXXXX XXXXX",
+      label: "SMS Alert",
+      category: "action-trigger",
+      config: {
+        phone: "+91 XXXXX XXXXX",
+      },
     },
   },
 ];
@@ -46,6 +58,33 @@ const FlowBuilderPage = () => {
   const [nodes, setNodes] = useState(initialNodes);
 
   const addNode = (type) => {
+    const defaultConfig = {
+      turbineSensor: {
+        deviceId: "TUR-001",
+      },
+  
+      movingAverage: {
+        window: 5,
+        field: "temperature",
+      },
+  
+      smsAlert: {
+        phone: "+91 XXXXX XXXXX",
+      },
+    };
+  
+    const nodeLabels = {
+      turbineSensor: "Turbine Sensor",
+      movingAverage: "Moving Average",
+      smsAlert: "SMS Alert",
+    };
+  
+    const nodeCategories = {
+      turbineSensor: "data-source",
+      movingAverage: "math-operation",
+      smsAlert: "action-trigger",
+    };
+  
     const newNode = {
       id: `${type}-${Date.now()}`,
       type,
@@ -53,9 +92,13 @@ const FlowBuilderPage = () => {
         x: 150,
         y: 300,
       },
-      data: {},
+      data: {
+        label: nodeLabels[type],
+        category: nodeCategories[type],
+        config: defaultConfig[type],
+      },
     };
-
+  
     setNodes((currentNodes) => [
       ...currentNodes,
       newNode,

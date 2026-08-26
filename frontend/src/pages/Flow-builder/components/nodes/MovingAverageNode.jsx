@@ -24,7 +24,7 @@ const MovingAverageNode = ({ data }) => {
                     </span>
 
                     <span className="font-medium text-text">
-                        {data?.window || 5}
+                    {data?.config?.window || 5}
                     </span>
                 </div>
 
@@ -34,7 +34,7 @@ const MovingAverageNode = ({ data }) => {
                     </span>
 
                     <span className="font-medium text-text">
-                        {data?.field || "temperature"}
+                    {data?.config?.field || "temperature"}
                     </span>
                 </div>
 
