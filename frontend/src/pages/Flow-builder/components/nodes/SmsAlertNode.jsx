@@ -24,7 +24,7 @@ const SmsAlertNode = ({ data }) => {
                     </span>
 
                     <span className="font-medium text-text">
-                        {data?.phone || "+91 74784 55134"}
+                        {data?.config?.phone || "+91 74784 55134"}
                     </span>
                 </div>
 

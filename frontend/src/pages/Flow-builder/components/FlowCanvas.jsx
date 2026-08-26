@@ -32,7 +32,8 @@ const initialEdges = [
   },
 ];
 
-const FlowCanvas = ({ nodes, setNodes }) => {
+const FlowCanvas = ({ nodes, setNodes, setSelectedNode }) => {
+  
   const [edges, setEdges, onEdgesChange] =
     useEdgesState(initialEdges);
 
@@ -72,6 +73,9 @@ const FlowCanvas = ({ nodes, setNodes }) => {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onNodeClick={(_, node) => {
+          setSelectedNode(node);
+        }}      
         fitView
       >
         <Background />

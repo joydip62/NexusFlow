@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import FlowCanvas from "../components/FlowCanvas";
 import NodePalette from "../components/NodePalette";
@@ -12,7 +12,11 @@ const initialNodes = [
       y: 150,
     },
     data: {
-      deviceId: "TUR-001",
+      label: "Turbine Sensor",
+      category: "data-source",
+      config: {
+        deviceId: "TUR-001",
+      },
     },
   },
 
@@ -24,8 +28,12 @@ const initialNodes = [
       y: 150,
     },
     data: {
-      window: 5,
-      field: "temperature",
+      label: "Moving Average",
+      category: "math-operation",
+      config: {
+        window: 5,
+        field: "temperature",
+      },
     },
   },
 
@@ -37,15 +45,50 @@ const initialNodes = [
       y: 150,
     },
     data: {
-      phone: "+91 XXXXX XXXXX",
+      label: "SMS Alert",
+      category: "action-trigger",
+      config: {
+        phone: "+91 XXXXX XXXXX",
+      },
     },
   },
 ];
 
 const FlowBuilderPage = () => {
   const [nodes, setNodes] = useState(initialNodes);
+  const [selectedNode, setSelectedNode] = useState(null);
+  const [config, setConfig] = useState({});
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const addNode = (type) => {
+    const defaultConfig = {
+      turbineSensor: {
+        deviceId: "TUR-001",
+      },
+
+      movingAverage: {
+        window: 5,
+        field: "temperature",
+      },
+
+      smsAlert: {
+        phone: "+91 XXXXX XXXXX",
+      },
+    };
+
+    const nodeLabels = {
+      turbineSensor: "Turbine Sensor",
+      movingAverage: "Moving Average",
+      smsAlert: "SMS Alert",
+    };
+
+    const nodeCategories = {
+      turbineSensor: "data-source",
+      movingAverage: "math-operation",
+      smsAlert: "action-trigger",
+    };
+
     const newNode = {
       id: `${type}-${Date.now()}`,
       type,
@@ -53,13 +96,101 @@ const FlowBuilderPage = () => {
         x: 150,
         y: 300,
       },
-      data: {},
+      data: {
+        label: nodeLabels[type],
+        category: nodeCategories[type],
+        config: defaultConfig[type],
+      },
     };
 
     setNodes((currentNodes) => [
       ...currentNodes,
       newNode,
     ]);
+  };
+
+  const updateNodeConfig = (nodeId, newConfig) => {
+    setNodes((currentNodes) =>
+      currentNodes.map((node) =>
+        node.id === nodeId
+          ? {
+              ...node,
+              data: {
+                ...node.data,
+                config: newConfig,
+              },
+            }
+          : node
+      )
+    );
+
+    setSelectedNode((currentNode) =>
+      currentNode
+        ? {
+            ...currentNode,
+            data: {
+              ...currentNode.data,
+              config: newConfig,
+            },
+          }
+        : null
+    );
+  };
+
+  useEffect(() => {
+    if (selectedNode) {
+      setConfig(selectedNode.data.config);
+      setError("");
+    }
+  }, [selectedNode]);
+
+  const validateConfig = () => {
+    if (!selectedNode) {
+      return "Please select a node.";
+    }
+
+    if (selectedNode.type === "turbineSensor") {
+      if (!config.deviceId?.trim()) {
+        return "Device ID is required.";
+      }
+    }
+
+    if (selectedNode.type === "movingAverage") {
+      if (
+        !config.window ||
+        Number(config.window) <= 0
+      ) {
+        return "Window must be greater than 0.";
+      }
+
+      if (!config.field?.trim()) {
+        return "Field is required.";
+      }
+    }
+
+    if (selectedNode.type === "smsAlert") {
+      if (!config.phone?.trim()) {
+        return "Phone number is required.";
+      }
+    }
+
+    return "";
+  };
+
+  const handleSaveConfig = () => {
+    setError("");
+    setSuccess("");
+
+    const validationError = validateConfig();
+
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    updateNodeConfig(selectedNode.id, config);
+
+    setSuccess("Configuration saved successfully.");
   };
 
   return (
@@ -79,7 +210,135 @@ const FlowBuilderPage = () => {
           <FlowCanvas
             nodes={nodes}
             setNodes={setNodes}
+            setSelectedNode={setSelectedNode}
           />
+
+          {selectedNode && (
+            <div className="mt-4 rounded-xl border border-border bg-surface p-4">
+              <h2 className="text-lg font-semibold text-text">
+                Node Configuration
+              </h2>
+
+              <p className="mt-1 text-sm text-muted">
+                {selectedNode.data.label}
+              </p>
+
+              <div className="mt-4">
+                {selectedNode.type === "turbineSensor" && (
+                  <div>
+                    <label className="text-sm text-muted">
+                      Device ID
+                    </label>
+
+                    <input
+                      type="text"
+                      value={config.deviceId || ""}
+                      onChange={(e) => {
+                        setConfig({
+                          ...config,
+                          deviceId: e.target.value,
+                        });
+                        setError("");
+                        setSuccess("");
+                      }}
+                      className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-text outline-none"
+                      placeholder="Enter device ID"
+                    />
+                  </div>
+                )}
+
+                {selectedNode.type === "movingAverage" && (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm text-muted">
+                        Window
+                      </label>
+
+                      <input
+                        type="number"
+                        min="1"
+                        value={config.window || ""}
+                        onChange={(e) => {
+                          setConfig({
+                            ...config,
+                            window: Number(e.target.value),
+                          });
+                          setError("");
+                          setSuccess("");
+                        }}
+                        className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-text outline-none"
+                        placeholder="Enter window size"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-sm text-muted">
+                        Field
+                      </label>
+
+                      <input
+                        type="text"
+                        value={config.field || ""}
+                        onChange={(e) => {
+                          setConfig({
+                            ...config,
+                            field: e.target.value,
+                          });
+                          setError("");
+                          setSuccess("");
+                        }}
+                        className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-text outline-none"
+                        placeholder="e.g. temperature"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {selectedNode.type === "smsAlert" && (
+                  <div>
+                    <label className="text-sm text-muted">
+                      Phone
+                    </label>
+
+                    <input
+                      type="text"
+                      value={config.phone || ""}
+                      onChange={(e) => {
+                        setConfig({
+                          ...config,
+                          phone: e.target.value,
+                        });
+                        setError("");
+                        setSuccess("");
+                      }}
+                      className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-text outline-none"
+                      placeholder="Enter phone number"
+                    />
+                  </div>
+                )}
+
+                {error && (
+                  <p className="mt-3 text-sm text-red-500">
+                    {error}
+                  </p>
+                )}
+
+                {success && (
+                  <p className="mt-3 text-sm text-green-500">
+                    {success}
+                  </p>
+                )}
+
+                <button
+                  type="button"
+                  onClick={handleSaveConfig}
+                  className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90"
+                >
+                  Save Configuration
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </section>

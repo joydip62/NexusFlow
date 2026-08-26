@@ -24,7 +24,7 @@ const TurbineSensorNode = ({ data }) => {
                     </span>
 
                     <span className="font-medium text-text">
-                        {data?.deviceId || "TUR-001"}
+                    {data?.config?.deviceId || "TUR-001"}
                     </span>
                 </div>
 
