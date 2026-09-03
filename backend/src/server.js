@@ -1,7 +1,7 @@
 const dns = require("dns");
+const { startRuleEngine } = require("./services/ruleEngine");
 
-// Use public DNS servers to resolve MongoDB Atlas SRV records
-// Required because the local network DNS may refuse SRV queries.
+
 dns.setServers([
     "8.8.8.8",
     "1.1.1.1"
@@ -9,9 +9,12 @@ dns.setServers([
 
 require("dotenv").config();
 
+const http = require("http");
+
 const app = require("./app");
 const connectDB = require("./config/db");
 const initializeTimeSeries = require("./config/initTimeSeries");
+const { initializeWebSocket } = require("./websocket");
 
 const PORT = process.env.PORT || 5000;
 
@@ -19,8 +22,15 @@ const startServer = async () => {
     await connectDB();
     await initializeTimeSeries();
 
-    app.listen(PORT, () => {
+    startRuleEngine();
+
+    const server = http.createServer(app);
+
+    initializeWebSocket(server);
+
+    server.listen(PORT, () => {
         console.log(`NexusFlow server running on port ${PORT}`);
+        console.log(`WebSocket server running on ws://localhost:${PORT}`);
     });
 };
 

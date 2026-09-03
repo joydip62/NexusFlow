@@ -1,5 +1,6 @@
 const Telemetry = require("../models/Telemetry");
-
+const { broadcast } = require("../websocket");
+const { pushTelemetry } = require("../services/ruleEngine");
 const createTelemetry = async (req, res) => {
     try {
         const {
@@ -18,7 +19,6 @@ const createTelemetry = async (req, res) => {
                 message: "deviceId is required"
             });
         }
-
         const telemetry = await Telemetry.create({
             timestamp: timestamp || new Date(),
 
@@ -31,6 +31,11 @@ const createTelemetry = async (req, res) => {
             pressure,
             rpm
         });
+        broadcast({
+            type: "telemetry",
+            data: telemetry
+        });
+        pushTelemetry(telemetry);
 
         return res.status(201).json({
             success: true,
@@ -118,6 +123,14 @@ const createBulkTelemetry = async (req, res) => {
 
         // Insert all records at once
         const telemetry = await Telemetry.insertMany(documents);
+        telemetry.forEach((item) => {
+            broadcast({
+                type: "telemetry",
+                data: item
+            });
+
+            pushTelemetry(item);
+        });
 
         return res.status(201).json({
             success: true,
